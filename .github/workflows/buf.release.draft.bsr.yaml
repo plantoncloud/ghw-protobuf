@@ -39,8 +39,8 @@ jobs:
       - name: Setup Buf CLI
         uses: bufbuild/buf-setup-action@v1.25.1
         with:
-          buf_user: ${{ env.BUF_TOKEN }}
-          buf_api_token: ${{ env.BUF_USERNAME }}
+          buf_user: ${{ env.BUF_USERNAME }}
+          buf_api_token: ${{ env.BUF_TOKEN }}
 
       - name: Export Short SHA Variable
         uses: rlespinasse/github-slug-action@v4.4.1
