@@ -78,3 +78,4 @@ jobs:
 
       - name: Build & Publish with Gradle
         run: ./gradlew publish -Prevision=1.0.0-${{ env.GITHUB_SHA_SHORT }} --no-daemon
+        working-directory: ./${{ inputs.JAVA_PROJECT_ROOT }}

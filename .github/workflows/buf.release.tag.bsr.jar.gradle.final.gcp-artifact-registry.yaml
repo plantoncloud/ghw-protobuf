@@ -82,3 +82,4 @@ jobs:
 
       - name: Build & Publish with Gradle
         run: ./gradlew publish -Prevision=1.0.0-${{ inputs.BUF_TAG }} --no-daemon
+        working-directory: ./${{ inputs.JAVA_PROJECT_ROOT }}
