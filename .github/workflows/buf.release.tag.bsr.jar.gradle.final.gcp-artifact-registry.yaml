@@ -1,0 +1,84 @@
+name: release-tag
+
+on:
+  workflow_call:
+    secrets:
+      PLANTON_CLOUD_CLIENT_ID:
+        required: true
+      PLANTON_CLOUD_CLIENT_SECRET:
+        required: true
+
+    inputs:
+      PLANTON_CLOUD_ARTIFACT_STORE_ID:
+        required: true
+        type: string
+      BUF_TAG:
+        description: 'semantic version of the buf  bsr tag'
+        type: string
+        required: true
+      JAVA_PROJECT_ROOT:
+        description: 'path of the java project relative to the root of the repository'
+        type: string
+        required: false
+        default: '.'
+      JAVA_DISTRIBUTION:
+        description: 'distribution of java to be specified in accordance with the setup-java action.Ref: https://github.com/actions/setup-java#supported-distributions'
+        type: string
+        required: false
+        default: 'adopt-openj9'
+      JAVA_VERSION:
+        description: 'version of java to be specified in accordance with the setup-java action.Ref: https://github.com/actions/setup-java#usage'
+        type: string
+        required: false
+        default: '17'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Install Planton CLI
+        uses: plantoncloud/gha-install-planton-cli@main
+
+      - name: Login to Planton Cloud
+        uses: plantoncloud/gha-planton-cli-login@main
+        with:
+          planton_cloud_client_id: ${{ secrets.PLANTON_CLOUD_CLIENT_ID }}
+          planton_cloud_client_secret: ${{ secrets.PLANTON_CLOUD_CLIENT_SECRET }}
+
+      - name: Export Buf Credentials
+        run: |
+          BUF_USERNAME=$(planton get ${{ inputs.PLANTON_CLOUD_ARTIFACT_STORE_ID }} -oyaml | yq e '.spec.bufUsername' -)
+          echo "BUF_USERNAME=$BUF_USERNAME" >> $GITHUB_ENV
+          BUF_TOKEN=$(planton get ${{ inputs.PLANTON_CLOUD_ARTIFACT_STORE_ID }} -oyaml | yq e '.spec.bufToken' -)
+          echo "BUF_TOKEN=$BUF_TOKEN" >> $GITHUB_ENV
+
+      - name: Setup Google Application Credentials
+        uses: plantoncloud/gha-export-gac-for-pc-artifact-store@main
+        with:
+          planton_cloud_artifact_store_id: ${{ inputs.PLANTON_CLOUD_ARTIFACT_STORE_ID }}
+          key_type: writer
+
+      - name: Setup Buf CLI
+        uses: bufbuild/buf-setup-action@v1.25.1
+        with:
+          buf_user: ${{ env.BUF_USERNAME }}
+          buf_api_token: ${{ env.BUF_TOKEN }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: '${{ inputs.JAVA_DISTRIBUTION }}'
+          java-version: '${{ inputs.JAVA_VERSION }}'
+          cache: 'gradle'
+
+      - name: Export Short SHA Variable
+        uses: rlespinasse/github-slug-action@v4.4.1
+
+      - name: Buf Push Draft
+        run: buf push --tag ${{ inputs.BUF_TAG }}
+
+      - name: Build & Publish with Gradle
+        run: ./gradlew publish -Prevision=1.0.0-${{ inputs.BUF_TAG }} --no-daemon
