@@ -1,0 +1,50 @@
+name: release-tag
+
+on:
+  workflow_call:
+    secrets:
+      PLANTON_CLOUD_CLIENT_ID:
+        required: true
+      PLANTON_CLOUD_CLIENT_SECRET:
+        required: true
+
+    inputs:
+      PLANTON_CLOUD_ARTIFACT_STORE_ID:
+        required: true
+        type: string
+      BUF_TAG:
+        description: 'semantic version of the buf  bsr tag'
+        type: string
+        required: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Install Planton CLI
+        uses: plantoncloud/gha-install-planton-cli@main
+
+      - name: Login to Planton Cloud
+        uses: plantoncloud/gha-planton-cli-login@main
+        with:
+          planton_cloud_client_id: ${{ secrets.PLANTON_CLOUD_CLIENT_ID }}
+          planton_cloud_client_secret: ${{ secrets.PLANTON_CLOUD_CLIENT_SECRET }}
+
+      - name: Export Buf Credentials
+        run: |
+          BUF_USERNAME=$(planton get ${{ inputs.PLANTON_CLOUD_ARTIFACT_STORE_ID }} -oyaml | yq e '.spec.bufUsername' -)
+          echo "BUF_USERNAME=$BUF_USERNAME" >> $GITHUB_ENV
+          BUF_TOKEN=$(planton get ${{ inputs.PLANTON_CLOUD_ARTIFACT_STORE_ID }} -oyaml | yq e '.spec.bufToken' -)
+          echo "BUF_TOKEN=$BUF_TOKEN" >> $GITHUB_ENV
+
+      - name: Setup Buf CLI
+        uses: bufbuild/buf-setup-action@v1.25.1
+        with:
+          buf_user: ${{ env.BUF_TOKEN }}
+          buf_api_token: ${{ env.BUF_USERNAME }}
+
+      - name: Buf Push Tag
+        run: buf push --tag ${{ inputs.BUF_TAG }}
