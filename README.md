@@ -1,4 +1,4 @@
-# GitHub Actions for Planton Cloud
+# GitHub Actions for Protobuf Definitions
 
 These GitHub Actions workflows are for automating the release of Buffer Schema Registry (BSR) tags via the Planton Cloud. Two workflows are currently set up: one for releasing draft tags, and one for releasing full tags.
 
