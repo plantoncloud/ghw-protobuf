@@ -1,4 +1,4 @@
-name: release-tag
+name: release-draft
 
 on:
   workflow_call:
@@ -12,10 +12,6 @@ on:
       PLANTON_CLOUD_ARTIFACT_STORE_ID:
         required: true
         type: string
-      BUF_TAG:
-        description: 'semantic version of the buf  bsr tag'
-        type: string
-        required: true
       JAVA_PROJECT_ROOT:
         description: 'path of the java project relative to the root of the repository'
         type: string
@@ -40,7 +36,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Install Planton CLI
-        uses: plantoncloud/gha-install-planton-cli@main
+        uses: plantoncloud/install-planton-cli-action@main
 
       - name: Login to Planton Cloud
         uses: plantoncloud/gha-planton-cli-login@main
@@ -55,8 +51,8 @@ jobs:
           BUF_TOKEN=$(planton get ${{ inputs.PLANTON_CLOUD_ARTIFACT_STORE_ID }} -oyaml | yq e '.spec.bufToken' -)
           echo "BUF_TOKEN=$BUF_TOKEN" >> $GITHUB_ENV
 
-      - name: Setup Google Application Credentials
-        uses: plantoncloud/gha-export-gac-for-pc-artifact-store@main
+      - name: Setup GCP Artifact Registry Maven Credentials
+        uses: plantoncloud/setup-gcp-artifact-registry-maven-credentials-action@main
         with:
           planton_cloud_artifact_store_id: ${{ inputs.PLANTON_CLOUD_ARTIFACT_STORE_ID }}
           key_type: writer
@@ -78,8 +74,8 @@ jobs:
         uses: rlespinasse/github-slug-action@v4.4.1
 
       - name: Buf Push Draft
-        run: buf push --tag ${{ inputs.BUF_TAG }}
+        run: buf push --draft ${{ env.GITHUB_SHA_SHORT }}
 
       - name: Build & Publish with Gradle
-        run: ./gradlew publish -Prevision=1.0.0-${{ inputs.BUF_TAG }} --no-daemon
+        run: ./gradlew publish -Prevision=1.0.0-${{ env.GITHUB_SHA_SHORT }} --no-daemon
         working-directory: ./${{ inputs.JAVA_PROJECT_ROOT }}
