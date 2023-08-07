@@ -1,39 +1,58 @@
-# GitHub Actions for Protobuf Definitions
+## GitHub Workflows for Protobuf Projects
 
-These GitHub Actions workflows are for automating the release of Buffer Schema Registry (BSR) tags via the Planton Cloud. Two workflows are currently set up: one for releasing draft tags, and one for releasing full tags.
+### **1. Build and Push Workflow**
 
-These workflows are set up in two different files:
+#### Purpose:
 
-- Draft release workflow: `.github/workflows/buf.release.draft.bsr.yaml`
-- Full release workflow: `.github/workflows/buf.release.tag.bsr.yaml`
+This workflow is responsible for building your source code and pushing it to the specified artifact store.
 
-## Workflow Steps
+#### Key Components:
 
-1. **Checkout Code**: This step checks out your repository so that the workflow can access its content.
+- **Checkout**: Retrieves the codebase from the repository.
+- **Install Planton CLI**: A utility tool for interfacing with the Planton Cloud services.
+- **Login to Planton Cloud**: Authenticates the CLI with the cloud platform.
+- **Export Buf Credentials**: Fetches credentials for interacting with Buf services.
+- **Setup Buf CLI**: Prepares the Buf CLI tool for further usage.
+- **Push to Buf**: This step pushes the relevant artifacts to Buf for further processing or storage.
 
-2. **Install Planton CLI**: This step installs the Planton CLI on the runner. This is required to interact with Planton Cloud.
+### **2. Release Draft Workflow**
 
-3. **Login to Planton Cloud**: The Planton CLI is used to login to Planton Cloud. The `PLANTON_CLOUD_CLIENT_ID` and `PLANTON_CLOUD_CLIENT_SECRET` are required for this step and should be provided as secrets.
+#### Purpose:
 
-4. **Export Buf Credentials**: The Planton CLI is used to get the Buf credentials from the Artifact Store of Planton Cloud using the provided `PLANTON_CLOUD_ARTIFACT_STORE_ID`. The Buf username and token are then set as environment variables to be used in the next step.
+This workflow focuses on pushing a draft release of the artifacts, primarily for stages before an official release.
 
-5. **Setup Buf CLI**: The Buf CLI is set up using the previously set environment variables: `BUF_USERNAME` and `BUF_TOKEN`. 
+#### Key Components:
+- **Checkout**: Retrieves the codebase from the repository.
+- **Install Planton CLI**: Used for interacting with Planton Cloud.
+- **Login to Planton Cloud**: Authenticates the CLI against Planton Cloud.
+- **Export Buf Credentials**: Extracts and sets up Buf service credentials.
+- **Setup Buf CLI**: Initializes the Buf CLI for further interactions.
+- **Push Draft to Buf**: Pushes a draft version of the artifacts to Buf.
 
-6. **Buf Push Tag**: The final step is to push the tag to Buf using the input `BUF_TAG`.
+### **3. Release Tag Workflow**
 
-## Usage
+#### Purpose:
 
-These workflows are designed to be called by other workflows in your repository. The workflows accept two inputs and require two secrets:
+Handles the official release of artifacts, tagging them for clear versioning and traceability.
 
-- Inputs:
-  - `PLANTON_CLOUD_ARTIFACT_STORE_ID`: The ID of your Artifact Store in Planton Cloud where your Buf credentials are stored.
-  - `BUF_TAG`: The semantic version of the Buf BSR tag you wish to release.
+#### Key Components:
 
-- Secrets:
-  - `PLANTON_CLOUD_CLIENT_ID`: Your Planton Cloud client ID. This should be stored as a secret in your GitHub repository.
-  - `PLANTON_CLOUD_CLIENT_SECRET`: Your Planton Cloud client secret. This should also be stored as a secret in your GitHub repository.
+- **Checkout**: Gets the repository code.
+- **Install Planton CLI**: Ensures the CLI tool for Planton Cloud is present.
+- **Login to Planton Cloud**: Securely logs into Planton Cloud.
+- **Export Buf Credentials**: Retrieves and sets up necessary credentials for Buf.
+- **Setup Buf CLI**: Readies the Buf CLI.
+- **Push Tag to Buf**: Pushes the final, tagged version of the artifacts to Buf for release.
 
-To call these workflows from another workflow in your repository, you can use the `workflow_call` event. Please consult the GitHub Actions documentation for further details.
+### **Usage Notes**:
+
+To use these workflows, make sure you've set up the necessary secrets (`PLANTON_CLOUD_CLIENT_ID` and `PLANTON_CLOUD_CLIENT_SECRET`) in your GitHub repository. This ensures secure authentication with the Planton Cloud.
+
+For workflows that require additional inputs, ensure those are provided during the workflow call.
+
+## Support
+
+If you encounter any issues or require further assistance, please file an issue in this GitHub repository.
 
 ## Contributing
 

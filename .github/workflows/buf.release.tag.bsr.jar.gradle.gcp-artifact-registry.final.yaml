@@ -43,7 +43,7 @@ jobs:
         uses: plantoncloud/install-planton-cli-action@main
 
       - name: Login to Planton Cloud
-        uses: plantoncloud/gha-planton-cli-login@main
+        uses: plantoncloud/planton-cli-login-action@main
         with:
           planton_cloud_client_id: ${{ secrets.PLANTON_CLOUD_CLIENT_ID }}
           planton_cloud_client_secret: ${{ secrets.PLANTON_CLOUD_CLIENT_SECRET }}
