@@ -3,7 +3,7 @@ name: release-draft
 on:
   workflow_call:
     secrets:
-      PLANTON_CLOUD_CLIENT_ID:
+      PLANTON_CLOUD_CLIENT_EMAIL:
         required: true
       PLANTON_CLOUD_CLIENT_SECRET:
         required: true
@@ -41,7 +41,7 @@ jobs:
       - name: Login to Planton Cloud
         uses: plantoncloud/planton-cli-login-action@main
         with:
-          planton_cloud_client_id: ${{ secrets.PLANTON_CLOUD_CLIENT_ID }}
+          planton_cloud_client_email: ${{ secrets.PLANTON_CLOUD_CLIENT_EMAIL }}
           planton_cloud_client_secret: ${{ secrets.PLANTON_CLOUD_CLIENT_SECRET }}
 
       - name: Export Buf Credentials

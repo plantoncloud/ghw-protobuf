@@ -46,7 +46,7 @@ Handles the official release of artifacts, tagging them for clear versioning and
 
 ### **Usage Notes**:
 
-To use these workflows, make sure you've set up the necessary secrets (`PLANTON_CLOUD_CLIENT_ID` and `PLANTON_CLOUD_CLIENT_SECRET`) in your GitHub repository. This ensures secure authentication with the Planton Cloud.
+To use these workflows, make sure you've set up the necessary secrets (`PLANTON_CLOUD_CLIENT_EMAIL` and `PLANTON_CLOUD_CLIENT_SECRET`) in your GitHub repository. This ensures secure authentication with the Planton Cloud.
 
 For workflows that require additional inputs, ensure those are provided during the workflow call.
 
