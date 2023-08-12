@@ -74,9 +74,6 @@ jobs:
           java-version: '${{ inputs.JAVA_VERSION }}'
           cache: 'gradle'
 
-      - name: Export Short SHA Variable
-        uses: rlespinasse/github-slug-action@v4.4.1
-
       - name: Buf Push Tag
         run: buf push --tag ${{ inputs.BUF_TAG }}
 
