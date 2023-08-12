@@ -77,9 +77,9 @@ jobs:
       - name: Export Short SHA Variable
         uses: rlespinasse/github-slug-action@v4.4.1
 
-      - name: Buf Push Draft
+      - name: Buf Push Tag
         run: buf push --tag ${{ inputs.BUF_TAG }}
 
       - name: Build & Publish with Gradle
-        run: ./gradlew publish -Prevision=1.0.0-${{ inputs.BUF_TAG }} --no-daemon
+        run: ./gradlew publish -Prevision=${{ inputs.BUF_TAG }} --no-daemon
         working-directory: ./${{ inputs.JAVA_PROJECT_ROOT }}
